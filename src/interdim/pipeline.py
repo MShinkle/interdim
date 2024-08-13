@@ -112,7 +112,4 @@ def analyze_and_visualize(data, reduction_method='tsne', clustering_method='dbsc
     analysis.cluster()
     analysis.visualize()
     
-    if verbose:
-        print("InterDim analysis pipeline complete")
-    
     return analysis

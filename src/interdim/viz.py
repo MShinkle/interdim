@@ -40,13 +40,13 @@ def interactive_scatterplot(x, y=None, z=None, interact_fn=None, x_label=None, y
         ))
 
     scatter_fig.layout.hovermode = 'closest'
-    scatter_fig.layout.margin = go.layout.Margin(l=30, r=30, b=30, t=30)
+    scatter_fig.layout.margin = go.layout.Margin(l=40, r=40, b=40, t=40)
     scatter_fig.layout.height = 600
     scatter_fig.layout.width = 600
 
     # Secondary plot for interactivity
     interact_fig = go.FigureWidget()
-    interact_fig.layout.margin = go.layout.Margin(l=30, r=30, b=30, t=30)
+    interact_fig.layout.margin = go.layout.Margin(l=40, r=40, b=40, t=40)
     interact_fig.layout.height = 600
     interact_fig.layout.width = 600
 
@@ -58,8 +58,6 @@ def interactive_scatterplot(x, y=None, z=None, interact_fn=None, x_label=None, y
             font=dict(size=12),
             x=0.5, y=0.5
         )
-        interact_fig.update_xaxes(visible=False)
-        interact_fig.update_yaxes(visible=False)
     else:
         interact_fig.layout.xaxis.visible = False
         interact_fig.layout.yaxis.visible = False
