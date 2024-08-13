@@ -4,7 +4,7 @@ from dash import dcc, html
 from dash.dependencies import Input, Output
 import numpy as np
 
-def interactive_scatterplot(x, y=None, z=None, interact_fn=None, x_label=None, y_label=None, z_label=None, marker_color='blue', marker_size=5, marker_opacity=0.2, interact_mode='hover'):
+def interactive_scatterplot(x, y=None, z=None, interact_fn=None, x_label=None, y_label=None, z_label=None, marker_color='blue', marker_size=5, marker_opacity=0.2, interact_mode='hover', run_server=True):
     marker_settings = {
         'color': marker_color,
         'size': marker_size,
@@ -108,5 +108,7 @@ def interactive_scatterplot(x, y=None, z=None, interact_fn=None, x_label=None, y
                 interact_fn(index, interact_fig)
             return interact_fig
 
-    app.run_server(debug=True)
+    if run_server:
+        app.run_server(debug=True)
+        
     return app
