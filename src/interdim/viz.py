@@ -1,10 +1,44 @@
+from typing import Literal, Optional, Callable
+import numpy as np
 import plotly.graph_objects as go
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output
-import numpy as np
 
-def interactive_scatterplot(x, y=None, z=None, interact_fn=None, x_label=None, y_label=None, z_label=None, marker_color='blue', marker_size=5, marker_opacity=0.2, interact_mode='hover', run_server=True):
+def interactive_scatterplot(
+    x: np.ndarray,
+    y: Optional[np.ndarray] = None,
+    z: Optional[np.ndarray] = None,
+    interact_fn: Optional[Callable] = None,
+    x_label: Optional[str] = None,
+    y_label: Optional[str] = None,
+    z_label: Optional[str] = None,
+    marker_color: str = 'blue',
+    marker_size: int = 5,
+    marker_opacity: float = 0.2,
+    interact_mode: Literal["hover", "click"] = 'hover',
+    run_server: bool = True
+) -> dash.Dash:
+    """
+    Create an interactive scatterplot using Plotly and Dash.
+
+    Args:
+        x: X-axis data.
+        y: Y-axis data (optional for 2D and 3D plots).
+        z: Z-axis data (optional for 3D plots).
+        interact_fn: Function to call on interaction events.
+        x_label: Label for X-axis.
+        y_label: Label for Y-axis.
+        z_label: Label for Z-axis.
+        marker_color: Color of the markers.
+        marker_size: Size of the markers.
+        marker_opacity: Opacity of the markers.
+        interact_mode: Interaction mode ('hover' or 'click').
+        run_server: Whether to run the Dash server.
+
+    Returns:
+        A Dash application instance.
+    """
     marker_settings = {
         'color': marker_color,
         'size': marker_size,
