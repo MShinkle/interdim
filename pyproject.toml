@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "interdim"
 version = "0.1.3"
 description = "Interactive Dimensionality Reduction, Clustering, and Visualization"
-readme = "README.md"
+readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
 license = {text = "BSD-3-Clause"}
 authors = [
@@ -18,6 +18,19 @@ dependencies = [
     "plotly",
     "dash",
 ]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+keywords = ["dimensionality reduction", "clustering", "visualization", "machine learning", "data analysis"]
 
 [project.optional-dependencies]
 umap = ["umap-learn"]
@@ -26,6 +39,7 @@ all = ["umap-learn", "hdbscan"]
 
 [project.urls]
 "Homepage" = "https://github.com/MShinkle/interdim"
+"Bug Tracker" = "https://github.com/MShinkle/interdim/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
