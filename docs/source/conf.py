@@ -19,15 +19,34 @@ extensions = []
 templates_path = ['_templates']
 exclude_patterns = []
 
-
-
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'alabaster'
-html_static_path = ['_static']
+# html_theme = 'alabaster'
 
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
+    'sphinx_rtd_theme',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon',
+    'sphinx_mdinclude',
+]
+
+# Autodoc settings
+autodoc_default_options = {
+    'members': True,
+    'member-order': 'bysource',
+    'special-members': '__init__',
+    'undoc-members': True,
+    'exclude-members': '__weakref__'
+}
+
+# Theme settings
+html_theme = 'sphinx_rtd_theme'
+
+source_suffix = ['.rst', '.md']

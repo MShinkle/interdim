@@ -1,15 +1,11 @@
-Welcome to InterDim's documentation!
-====================================
+.. mdinclude:: ../../README.md
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: API Reference
 
-   modules
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   _autosummary/interdim.pipeline
+   _autosummary/interdim.reduce
+   _autosummary/interdim.cluster
+   _autosummary/interdim.score
+   _autosummary/interdim.viz
