@@ -15,13 +15,12 @@ jobs:
         python-version: '3.x'
     - name: Install dependencies
       run: |
-        pip install sphinx
+        pip install sphinx sphinx_rtd_theme sphinx-mdinclude
         pip install .
     - name: Build docs
       run: |
-        sphinx-apidoc -o docs/source .
         cd docs
-        make html
+        sphinx-build -b html source build/html
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
