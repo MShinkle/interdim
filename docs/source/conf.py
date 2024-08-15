@@ -46,6 +46,10 @@ autodoc_default_options = {
     'exclude-members': '__weakref__'
 }
 
+# Autosummary settings
+autosummary_generate = True
+autosummary_imported_members = True
+
 # Theme settings
 html_theme = 'sphinx_rtd_theme'
 

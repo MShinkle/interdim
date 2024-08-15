@@ -1,11 +1,11 @@
 .. mdinclude:: ../../README.md
 
-.. toctree::
-   :maxdepth: 2
-   :caption: API Reference
+.. autosummary::
+   :toctree: _autosummary
+   :recursive:
 
-   _autosummary/interdim.pipeline
-   _autosummary/interdim.reduce
-   _autosummary/interdim.cluster
-   _autosummary/interdim.score
-   _autosummary/interdim.viz
+   interdim.pipeline
+   interdim.reduce
+   interdim.cluster
+   interdim.score
+   interdim.viz
