@@ -8,7 +8,7 @@
 
    .. autosummary::
    
-      analyze_and_visualize
+      analyze_and_show
       cluster_data
       interactive_scatterplot
       reduce_dimensionality

@@ -8,6 +8,7 @@
 
    .. autosummary::
    
+      create_scatter_plot
       interactive_scatterplot
    
    .. rubric:: Classes

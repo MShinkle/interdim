@@ -17,7 +17,6 @@
       FastICA
       GaussianRandomProjection
       Isomap
-      LinearDiscriminantAnalysis
       LocallyLinearEmbedding
       MDS
       NMF
