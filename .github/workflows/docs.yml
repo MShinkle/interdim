@@ -1,28 +1,35 @@
-name: Build and Deploy Docs
+name: Build and Deploy Sphinx Docs
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main  # Triggers the workflow on push to the 'main' branch
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python 3.x
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
+
     - name: Install dependencies
       run: |
         pip install sphinx sphinx_rtd_theme sphinx-mdinclude
         pip install .
-    - name: Build docs
+
+    - name: Build Sphinx docs
       run: |
         cd docs
         sphinx-build -b html source build/html
+
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/build/html
+        github_token: ${{ secrets.GITHUB_TOKEN }}  # Provided automatically by GitHub
+        publish_dir: docs/build/html  # Directory where the built docs are located
