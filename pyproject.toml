@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "interdim"
-version = "0.2.1"
+version = "0.2.2"
 description = "Interactive Dimensionality Reduction, Clustering, and Visualization"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
@@ -35,6 +35,7 @@ keywords = ["dimensionality reduction", "clustering", "visualization", "machine 
 [project.optional-dependencies]
 umap = ["umap-learn"]
 hdbscan = ["hdbscan"]
+test = ["pytest"]  # <-- Added this line to include pytest for testing
 all = ["umap-learn", "hdbscan"]
 
 [project.urls]
