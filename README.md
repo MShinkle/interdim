@@ -15,8 +15,12 @@ API Documentation: [mshinkle.github.io/interdim](https://mshinkle.github.io/inte
 ## Installation
 You can install from [pypi](https://pypi.org/project/interdim/) via `pip` (recommended):
 
-`pip install interdim`
+```bash
+pip install interdim
+```
 
 Or from source, by cloning, navigating into the base dir, and installing via:
 
-`pip install .`
+```bash
+pip install .
+```
