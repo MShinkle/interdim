@@ -1,12 +1,8 @@
-from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import version
 
-try:
-    __version__ = version(__name__)
-except PackageNotFoundError:
-    # package is not installed
-    __version__ = "unknown"
+__version__ = version(__name__)
 
-from .pipeline import InterDimAnalysis, analyze_and_visualize
+from .pipeline import InterDimAnalysis, analyze_and_show
 from . import reduce
 from . import cluster
 from . import viz

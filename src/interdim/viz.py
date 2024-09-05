@@ -1,67 +1,33 @@
-from typing import Literal, Optional, Callable
+from typing import Literal, Optional, Callable, Union
 import numpy as np
 import plotly.graph_objects as go
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output
 
-def interactive_scatterplot(
-    x: np.ndarray,
-    y: Optional[np.ndarray] = None,
-    z: Optional[np.ndarray] = None,
-    interact_fn: Optional[Callable] = None,
-    x_label: Optional[str] = None,
-    y_label: Optional[str] = None,
-    z_label: Optional[str] = None,
-    marker_color: str = 'blue',
-    marker_size: int = 5,
-    marker_opacity: float = 0.2,
-    interact_mode: Literal["hover", "click"] = 'hover',
-    run_server: bool = True
-) -> dash.Dash:
-    """
-    Create an interactive scatterplot using Plotly and Dash.
-
-    Args:
-        x: X-axis data.
-        y: Y-axis data (optional for 2D and 3D plots).
-        z: Z-axis data (optional for 3D plots).
-        interact_fn: Function to call on interaction events.
-        x_label: Label for X-axis.
-        y_label: Label for Y-axis.
-        z_label: Label for Z-axis.
-        marker_color: Color of the markers.
-        marker_size: Size of the markers.
-        marker_opacity: Opacity of the markers.
-        interact_mode: Interaction mode ('hover' or 'click').
-        run_server: Whether to run the Dash server.
-
-    Returns:
-        A Dash application instance.
-    """
+def create_scatter_plot(x, y, z, marker_color, marker_size, marker_opacity, x_label, y_label, z_label):
+    """Helper function to create scatter plot"""
     marker_settings = {
-        'color': marker_color,
         'size': marker_size,
         'opacity': marker_opacity,
     }
+    if marker_color is not None:
+        marker_settings['color'] = marker_color
 
     if y is None and z is None:
         # 1D scatter plot
-        scatter_fig = go.FigureWidget(data=[
+        scatter_fig = go.Figure(data=[
             go.Scatter(x=x, y=np.zeros_like(x), mode='markers', marker=marker_settings, showlegend=False)
         ])
-        scatter_fig.update_xaxes(title_text=x_label)
-        scatter_fig.update_yaxes(title_text=y_label, visible=False)
+        scatter_fig.update_yaxes(visible=False)
     elif z is None:
         # 2D scatter plot
-        scatter_fig = go.FigureWidget(data=[
+        scatter_fig = go.Figure(data=[
             go.Scatter(x=x, y=y, mode='markers', marker=marker_settings, showlegend=False)
         ])
-        scatter_fig.update_xaxes(title_text=x_label)
-        scatter_fig.update_yaxes(title_text=y_label)
     else:
         # 3D scatter plot
-        scatter_fig = go.FigureWidget(data=[
+        scatter_fig = go.Figure(data=[
             go.Scatter3d(x=x, y=y, z=z, mode='markers', marker=marker_settings, showlegend=False)
         ])
         scatter_fig.update_layout(scene=dict(
@@ -73,16 +39,78 @@ def interactive_scatterplot(
             zaxis=dict(showspikes=False),
         ))
 
-    scatter_fig.layout.hovermode = 'closest'
-    scatter_fig.layout.margin = go.layout.Margin(l=40, r=40, b=40, t=40)
-    scatter_fig.layout.height = 600
-    scatter_fig.layout.width = 600
+    scatter_fig.update_xaxes(title_text=x_label)
+    scatter_fig.update_yaxes(title_text=y_label)
+    scatter_fig.update_layout(
+        margin=dict(l=40, r=40, b=40, t=40),
+        hovermode='closest'
+    )
 
-    # Secondary plot for interactivity
-    interact_fig = go.FigureWidget()
-    interact_fig.layout.margin = go.layout.Margin(l=40, r=40, b=40, t=40)
-    interact_fig.layout.height = 600
-    interact_fig.layout.width = 600
+    return scatter_fig
+
+def interactive_scatterplot(
+    x: np.ndarray,
+    y: Optional[np.ndarray] = None,
+    z: Optional[np.ndarray] = None,
+    true_labels: Optional[np.ndarray] = None,
+    cluster_labels: Optional[np.ndarray] = None,
+    interact_fn: Optional[Callable] = None,
+    x_label: Optional[str] = None,
+    y_label: Optional[str] = None,
+    z_label: Optional[str] = None,
+    marker_color: Optional[Union[str, np.ndarray]] = None,
+    marker_size: int = 5,
+    marker_opacity: float = 0.5,
+    interact_mode: Literal["hover", "click"] = 'hover',
+    run_server: bool = True
+) -> dash.Dash:
+    """
+    Create an interactive scatterplot using Plotly and Dash.
+
+    Args:
+        x: X-axis data.
+        y: Y-axis data (optional for 2D and 3D plots).
+        z: Z-axis data (optional for 3D plots).
+        true_labels: True labels for coloring (optional).
+        cluster_labels: Cluster labels for coloring (optional).
+        interact_fn: Function to call on interaction events.
+        x_label: Label for X-axis.
+        y_label: Label for Y-axis.
+        z_label: Label for Z-axis.
+        marker_color: Custom color for markers (optional).
+        marker_size: Size of the markers.
+        marker_opacity: Opacity of the markers.
+        interact_mode: Interaction mode ('hover' or 'click').
+        run_server: Whether to run the Dash server.
+
+    Returns:
+        A Dash application instance.
+    """
+    app = dash.Dash(__name__)
+
+    # Determine available color options
+    color_options = ['Custom']
+    if true_labels is not None:
+        color_options.append('True Labels')
+    if cluster_labels is not None:
+        color_options.append('Clusters')
+
+    # Create the initial scatter plot
+    scatter_fig = create_scatter_plot(x, y, z, marker_color, marker_size, marker_opacity, x_label, y_label, z_label)
+
+    # Create the color selector
+    color_selector = dcc.RadioItems(
+        id='color-selector',
+        options=[{'label': opt, 'value': opt} for opt in color_options],
+        value='Custom',
+        inline=True
+    )
+
+    # Create the secondary plot for interactivity
+    interact_fig = go.Figure()
+    interact_fig.update_layout(
+        margin=dict(l=40, r=40, b=40, t=40),
+    )
 
     if interact_fn is None:
         interact_fig.add_annotation(
@@ -92,43 +120,46 @@ def interactive_scatterplot(
             font=dict(size=12),
             x=0.5, y=0.5
         )
-    else:
-        interact_fig.layout.xaxis.visible = False
-        interact_fig.layout.yaxis.visible = False
+        interact_fig.update_xaxes(visible=False)
+        interact_fig.update_yaxes(visible=False)
 
-        def on_interact(trace, points, selector):
-            if points.point_inds:
-                index = points.point_inds[0]
-                interact_fn(index, interact_fig)
+    app.layout = html.Div([
+        html.H4("Marker Colors:"),
+        color_selector,
+        html.Div(
+            style={
+                'display': 'flex',
+                'justify-content': 'space-between',
+                'width': '100%',
+            },
+            children=[
+                dcc.Graph(
+                    id='scatter-plot', 
+                    figure=scatter_fig,
+                    style={'flex': '0 0 48%'}
+                ),
+                dcc.Graph(
+                    id='interact-plot', 
+                    figure=interact_fig,
+                    style={'flex': '0 0 48%'}
+                )
+            ]
+        )
+    ])
 
-        if interact_mode == 'hover':
-            scatter_fig.data[0].on_hover(on_interact)
-        elif interact_mode == 'click':
-            scatter_fig.data[0].on_click(on_interact)
-        else:
-            raise ValueError(f"Invalid interact_mode: {interact_mode}. Expected 'hover' or 'click'.")
-
-    app = dash.Dash(__name__)
-
-    app.layout = html.Div(
-        style={
-            'display': 'flex',
-            'justify-content': 'space-between',
-            'width': '800px',
-        },
-        children=[
-            dcc.Graph(
-                id='scatter-plot', 
-                figure=scatter_fig,
-                style={'flex': '0 0 48%'}
-            ),
-            dcc.Graph(
-                id='interact-plot', 
-                figure=interact_fig,
-                style={'flex': '0 0 48%'}
-            )
-        ]
+    @app.callback(
+        Output('scatter-plot', 'figure'),
+        Input('color-selector', 'value')
     )
+    def update_color(selected_option):
+        if selected_option == 'True Labels':
+            selected_color = true_labels
+        elif selected_option == 'Clusters':
+            selected_color = cluster_labels
+        else:
+            selected_color = marker_color
+        
+        return create_scatter_plot(x, y, z, selected_color, marker_size, marker_opacity, x_label, y_label, z_label)
 
     if interact_fn:
         @app.callback(

@@ -2,12 +2,11 @@ from typing import Literal
 import numpy as np
 from sklearn.decomposition import PCA, TruncatedSVD, FastICA, NMF
 from sklearn.manifold import TSNE, Isomap, LocallyLinearEmbedding, MDS, SpectralEmbedding
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.random_projection import GaussianRandomProjection, SparseRandomProjection
 
 ReductionMethodType = Literal[
     "pca", "tsne", "umap", "truncated_svd", "fast_ica", "nmf", "isomap",
-    "lle", "mds", "spectral_embedding", "lda", "gaussian_random_projection",
+    "lle", "mds", "spectral_embedding", "gaussian_random_projection",
     "sparse_random_projection"
 ]
 
@@ -59,8 +58,6 @@ def reduce_dimensionality(
         reducer = MDS(n_components=n_components, **kwargs)
     elif method == "spectral_embedding":
         reducer = SpectralEmbedding(n_components=n_components, **kwargs)
-    elif method == "lda":
-        reducer = LinearDiscriminantAnalysis(n_components=n_components, **kwargs)
     elif method == "gaussian_random_projection":
         reducer = GaussianRandomProjection(n_components=n_components, **kwargs)
     elif method == "sparse_random_projection":
