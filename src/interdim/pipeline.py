@@ -5,7 +5,7 @@ import dash
 from .reduce import reduce_dimensionality, ReductionMethodType
 from .cluster import cluster_data, ClusteringMethodType
 from .score import score_clustering, ScoreMethodType
-from .viz import interactive_scatterplot
+from .vis import interactive_scatterplot
 
 class InterDimAnalysis:
     def __init__(
