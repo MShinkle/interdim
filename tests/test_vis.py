@@ -1,5 +1,5 @@
 import numpy as np
-from interdim.viz import interactive_scatterplot
+from interdim.vis import interactive_scatterplot
 
 def test_interactive_scatterplot_creation():
     x = np.random.rand(100)

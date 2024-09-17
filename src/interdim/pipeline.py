@@ -76,23 +76,32 @@ class InterDimAnalysis:
     def cluster(
         self,
         method: ClusteringMethodType = 'dbscan',
+        which_data: str = 'reduced',
         **kwargs
     ) -> np.ndarray:
         """
-        Perform clustering on the reduced data.
+        Perform clustering on the chosen dataset (original or reduced).
 
         Args:
             method: Clustering method to use.
+            which_data: Which dataset to use for clustering ('original' or 'reduced').
             **kwargs: Additional arguments for the clustering method.
 
         Returns:
             The cluster labels.
 
         Raises:
-            ValueError: If dimensionality reduction hasn't been performed yet.
+            ValueError: If the selected dataset hasn't been prepared.
         """
-        if self.reduced_data is None:
-            raise ValueError("You must run the 'reduce' method before clustering.")
+        # Determine which data to use for clustering
+        if which_data == 'original':
+            clustering_data = self.data
+        elif which_data == 'reduced':
+            if self.reduced_data is None:
+                raise ValueError("'which_data' is set to 'reduced', but 'reduced_data' is not set. Please run the 'reduce' method first or use 'original' data.")
+            clustering_data = self.reduced_data
+        else:
+            raise ValueError("which_data must be either 'original' or 'reduced'")
 
         if method is None:
             self.cluster_labels = None
@@ -107,7 +116,7 @@ class InterDimAnalysis:
                     print(f"\t{kwargs}")
             
             self.cluster_labels = cluster_data(
-                self.reduced_data, 
+                clustering_data, 
                 method=method, 
                 **kwargs
             )
@@ -117,6 +126,7 @@ class InterDimAnalysis:
                 print(f"Clustering complete. Number of clusters: {n_clusters}")
         
         return self.cluster_labels
+
 
     def score(
         self,
