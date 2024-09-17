@@ -46,7 +46,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../_autosummary/interdim.reduce.html">interdim.reduce</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_autosummary/interdim.cluster.html">interdim.cluster</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_autosummary/interdim.score.html">interdim.score</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../_autosummary/interdim.viz.html">interdim.viz</a></li>
 </ul>
 
         </div>
@@ -76,6 +75,7 @@
   <h1>Source code for interdim.cluster</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">KMeans</span><span class="p">,</span> <span class="n">DBSCAN</span><span class="p">,</span> <span class="n">AgglomerativeClustering</span><span class="p">,</span> <span class="n">Birch</span><span class="p">,</span>
     <span class="n">MiniBatchKMeans</span><span class="p">,</span> <span class="n">SpectralClustering</span><span class="p">,</span> <span class="n">AffinityPropagation</span><span class="p">,</span>
@@ -88,6 +88,7 @@
     <span class="s2">&quot;mini_batch_kmeans&quot;</span><span class="p">,</span> <span class="s2">&quot;spectral&quot;</span><span class="p">,</span> <span class="s2">&quot;affinity_propagation&quot;</span><span class="p">,</span>
     <span class="s2">&quot;mean_shift&quot;</span><span class="p">,</span> <span class="s2">&quot;optics&quot;</span><span class="p">,</span> <span class="s2">&quot;gaussian_mixture&quot;</span>
 <span class="p">]</span>
+
 
 <div class="viewcode-block" id="cluster_data">
 <a class="viewcode-back" href="../../_autosummary/interdim.cluster.html#interdim.cluster.cluster_data">[docs]</a>
@@ -110,15 +111,21 @@
 <span class="sd">        Cluster labels for each data point.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: If an unsupported clustering method is specified or if</span>
-<span class="sd">                    n_clusters is not provided for methods that require it.</span>
+<span class="sd">        ValueError: If n_clusters is not provided for methods that require it.</span>
 <span class="sd">        ImportError: If HDBSCAN is not installed when &#39;hdbscan&#39; method is selected.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">method</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    
+
+    <span class="c1"># Warning if n_clusters is provided but not used</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;dbscan&quot;</span><span class="p">,</span> <span class="s2">&quot;hdbscan&quot;</span><span class="p">,</span> <span class="s2">&quot;affinity_propagation&quot;</span><span class="p">,</span> <span class="s2">&quot;mean_shift&quot;</span><span class="p">,</span> <span class="s2">&quot;optics&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">n_clusters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Clustering method &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39; does not use the &#39;n_clusters&#39; argument. Ignoring the provided value.&quot;</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Raise an error if n_clusters is needed but not provided</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="s2">&quot;agglomerative&quot;</span><span class="p">,</span> <span class="s2">&quot;mini_batch_kmeans&quot;</span><span class="p">,</span> <span class="s2">&quot;spectral&quot;</span><span class="p">,</span> <span class="s2">&quot;gaussian_mixture&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">n_clusters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Clustering method &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39; requires the &#39;n_clusters&#39; argument to be specified.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Define the clusterer based on the method</span>
     <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;kmeans&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">n_clusters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_clusters must be specified for KMeans clustering&quot;</span><span class="p">)</span>
         <span class="n">clusterer</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;dbscan&quot;</span><span class="p">:</span>
         <span class="n">clusterer</span> <span class="o">=</span> <span class="n">DBSCAN</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -129,18 +136,12 @@
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;HDBSCAN is not installed. Install it with &#39;pip install hdbscan&#39;&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;agglomerative&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">n_clusters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_clusters must be specified for Agglomerative clustering&quot;</span><span class="p">)</span>
         <span class="n">clusterer</span> <span class="o">=</span> <span class="n">AgglomerativeClustering</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;birch&quot;</span><span class="p">:</span>
         <span class="n">clusterer</span> <span class="o">=</span> <span class="n">Birch</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;mini_batch_kmeans&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">n_clusters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_clusters must be specified for Mini-Batch KMeans clustering&quot;</span><span class="p">)</span>
         <span class="n">clusterer</span> <span class="o">=</span> <span class="n">MiniBatchKMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;spectral&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">n_clusters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_clusters must be specified for Spectral clustering&quot;</span><span class="p">)</span>
         <span class="n">clusterer</span> <span class="o">=</span> <span class="n">SpectralClustering</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;affinity_propagation&quot;</span><span class="p">:</span>
         <span class="n">clusterer</span> <span class="o">=</span> <span class="n">AffinityPropagation</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -149,12 +150,10 @@
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;optics&quot;</span><span class="p">:</span>
         <span class="n">clusterer</span> <span class="o">=</span> <span class="n">OPTICS</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;gaussian_mixture&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">n_clusters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_clusters must be specified for Gaussian Mixture clustering&quot;</span><span class="p">)</span>
         <span class="n">clusterer</span> <span class="o">=</span> <span class="n">GaussianMixture</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported clustering method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    
+
     <span class="k">return</span> <span class="n">clusterer</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
 </pre></div>

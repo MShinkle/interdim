@@ -46,7 +46,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../_autosummary/interdim.reduce.html">interdim.reduce</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_autosummary/interdim.cluster.html">interdim.cluster</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_autosummary/interdim.score.html">interdim.score</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../_autosummary/interdim.viz.html">interdim.viz</a></li>
 </ul>
 
         </div>
@@ -81,7 +80,7 @@
 <span class="kn">from</span> <span class="nn">.reduce</span> <span class="kn">import</span> <span class="n">reduce_dimensionality</span><span class="p">,</span> <span class="n">ReductionMethodType</span>
 <span class="kn">from</span> <span class="nn">.cluster</span> <span class="kn">import</span> <span class="n">cluster_data</span><span class="p">,</span> <span class="n">ClusteringMethodType</span>
 <span class="kn">from</span> <span class="nn">.score</span> <span class="kn">import</span> <span class="n">score_clustering</span><span class="p">,</span> <span class="n">ScoreMethodType</span>
-<span class="kn">from</span> <span class="nn">.viz</span> <span class="kn">import</span> <span class="n">interactive_scatterplot</span>
+<span class="kn">from</span> <span class="nn">.vis</span> <span class="kn">import</span> <span class="n">interactive_scatterplot</span>
 
 <div class="viewcode-block" id="InterDimAnalysis">
 <a class="viewcode-back" href="../../_autosummary/interdim.pipeline.html#interdim.pipeline.InterDimAnalysis">[docs]</a>
@@ -162,23 +161,32 @@
     <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="n">ClusteringMethodType</span> <span class="o">=</span> <span class="s1">&#39;dbscan&#39;</span><span class="p">,</span>
+        <span class="n">which_data</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;reduced&#39;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Perform clustering on the reduced data.</span>
+<span class="sd">        Perform clustering on the chosen dataset (original or reduced).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            method: Clustering method to use.</span>
+<span class="sd">            which_data: Which dataset to use for clustering (&#39;original&#39; or &#39;reduced&#39;).</span>
 <span class="sd">            **kwargs: Additional arguments for the clustering method.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The cluster labels.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            ValueError: If dimensionality reduction hasn&#39;t been performed yet.</span>
+<span class="sd">            ValueError: If the selected dataset hasn&#39;t been prepared.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You must run the &#39;reduce&#39; method before clustering.&quot;</span><span class="p">)</span>
+        <span class="c1"># Determine which data to use for clustering</span>
+        <span class="k">if</span> <span class="n">which_data</span> <span class="o">==</span> <span class="s1">&#39;original&#39;</span><span class="p">:</span>
+            <span class="n">clustering_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">elif</span> <span class="n">which_data</span> <span class="o">==</span> <span class="s1">&#39;reduced&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;which_data&#39; is set to &#39;reduced&#39;, but &#39;reduced_data&#39; is not set. Please run the &#39;reduce&#39; method first or use &#39;original&#39; data.&quot;</span><span class="p">)</span>
+            <span class="n">clustering_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;which_data must be either &#39;original&#39; or &#39;reduced&#39;&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cluster_labels</span> <span class="o">=</span> <span class="kc">None</span>
@@ -193,7 +201,7 @@
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             
             <span class="bp">self</span><span class="o">.</span><span class="n">cluster_labels</span> <span class="o">=</span> <span class="n">cluster_data</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span><span class="p">,</span> 
+                <span class="n">clustering_data</span><span class="p">,</span> 
                 <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> 
                 <span class="o">**</span><span class="n">kwargs</span>
             <span class="p">)</span>
@@ -203,6 +211,7 @@
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Clustering complete. Number of clusters: </span><span class="si">{</span><span class="n">n_clusters</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_labels</span></div>
+
 
 
 <div class="viewcode-block" id="InterDimAnalysis.score">
