@@ -181,9 +181,6 @@ class InterDimAnalysis:
                     "histogram",
                     "line",
                     "violin",
-                    "heatmap",
-                    "image",
-                    "surface",
                 ],
             ]
         ] = None,
