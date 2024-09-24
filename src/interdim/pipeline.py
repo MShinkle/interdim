@@ -1,11 +1,11 @@
-from typing import Literal, Optional, Callable, Union
+from typing import Literal, Optional, Callable, Union, List
 import numpy as np
 import warnings
 import dash
 from .reduce import reduce_dimensionality, ReductionMethodType
 from .cluster import cluster_data, ClusteringMethodType
 from .score import score_clustering, ScoreMethodType
-from .vis import interactive_scatterplot
+from .vis import interactive_scatterplot, InteractionPlot
 
 class InterDimAnalysis:
     def __init__(
@@ -166,11 +166,10 @@ class InterDimAnalysis:
             self, 
             n_components: Optional[int] = 3, 
             which_data: str = 'reduced', 
-            interact_fn: Optional[Callable] = None,
-            x_label: Optional[str] = None,
-            y_label: Optional[str] = None,
-            z_label: Optional[str] = None,
-            marker_color: Optional[Union[str, np.ndarray]] = None,
+            point_visualization: Optional[Union[
+                Callable,
+                Literal['bar', 'box', 'histogram', 'line', 'violin', 'heatmap', 'image', 'surface']
+            ]] = None,            marker_color: Optional[Union[str, np.ndarray]] = None,
             marker_size: int = 5,
             marker_opacity: float = 0.5,
             interact_mode: Literal["hover", "click"] = 'hover',
@@ -182,12 +181,8 @@ class InterDimAnalysis:
         Args:
             n_components: Number of components to show (1, 2, or 3).
             which_data: Which dataset to show ('original' or 'reduced').
-            interact_fn: Function to call on interaction events.
-            x_label: Label for X-axis.
-            y_label: Label for Y-axis.
-            z_label: Label for Z-axis.
-            marker_color: Custom color for markers. Can be a single color (e.g., 'red', '#00FF00') 
-                        or an array of colors matching the number of data points.
+            point_visualization: Either a function or a string specifying the plot type for interaction events.
+            marker_color: Custom color for markers, can be a single color or an array of colors.
             marker_size: Size of the markers.
             marker_opacity: Opacity of the markers.
             interact_mode: Interaction mode ('hover' or 'click').
@@ -199,7 +194,6 @@ class InterDimAnalysis:
         Raises:
             ValueError: If invalid options are selected or required methods haven't been run.
         """
-        # Determine which data to use
         if which_data == 'original':
             vis_data = self.data
         elif which_data == 'reduced':
@@ -211,14 +205,16 @@ class InterDimAnalysis:
         else:
             raise ValueError("which_data must be either 'original' or 'reduced'")
 
-
-        # Handle n_components
         if n_components > 3:
             warnings.warn(f"n_components ({n_components}) > 3, only the first 3 components will be shown.", stacklevel=2)
             n_components = 3
+
         if n_components != vis_data.shape[-1]:
             warnings.warn(f"n_components ({n_components}) is different than the number of data features ({vis_data.shape[-1]}), only the first {min(n_components, vis_data.shape[-1])} components will be shown.", stacklevel=2)
             n_components = min(n_components, vis_data.shape[-1])
+
+        if isinstance(point_visualization, str):
+            point_visualization = InteractionPlot(data_source=self.data, plot_type=point_visualization)
 
         app = interactive_scatterplot(
             x=vis_data[:, 0],
@@ -226,10 +222,7 @@ class InterDimAnalysis:
             z=vis_data[:, 2] if n_components > 2 else None,
             true_labels=self.true_labels,
             cluster_labels=self.cluster_labels,
-            interact_fn=interact_fn,
-            x_label=x_label,
-            y_label=y_label,
-            z_label=z_label,
+            point_visualization=point_visualization,
             marker_color=marker_color,
             marker_size=marker_size,
             marker_opacity=marker_opacity,
@@ -238,42 +231,3 @@ class InterDimAnalysis:
         )
 
         return app
-
-
-def analyze_and_show(
-    data: np.ndarray,
-    n_components: int = 2,
-    true_labels: Optional[np.ndarray] = None, 
-    reduction_method: ReductionMethodType = 'tsne',
-    clustering_method: ClusteringMethodType = 'dbscan',
-    scoring_method: ScoreMethodType = 'silhouette', 
-    reduction_kwargs: Optional[dict] = None,
-    clustering_kwargs: Optional[dict] = None, 
-    viz_func: Optional[Callable] = None,
-    verbose: bool = True
-) -> InterDimAnalysis:
-    """
-    Main function for easy use of the InterDim package.
-
-    Args:
-        data: Input data for analysis.
-        n_components: Number of components for dimensionality reduction.
-        true_labels: True labels for supervised scoring methods (optional).
-        reduction_method: Method for dimensionality reduction.
-        clustering_method: Method for clustering.
-        scoring_method: Method for scoring clustering performance.
-        reduction_kwargs: Additional parameters for reduction method (optional).
-        clustering_kwargs: Additional parameters for clustering method (optional).
-        viz_func: Custom visualization function (optional).
-        verbose: Whether to print progress information.
-
-    Returns:
-        An InterDimAnalysis object with the analysis results.
-    """
-    analysis = InterDimAnalysis(data, true_labels, viz_func, verbose)
-    analysis.reduce(method=reduction_method, n_components=n_components, **(reduction_kwargs or {}))
-    analysis.cluster(method=clustering_method, **(clustering_kwargs or {}))
-    analysis.score(method=scoring_method)
-    analysis.show(n_components=n_components)
-    
-    return analysis
