@@ -1,17 +1,32 @@
-from typing import Literal, Optional
-import numpy as np
 import warnings
+from typing import Literal, Optional
+
+import numpy as np
 from sklearn.cluster import (
-    KMeans, DBSCAN, AgglomerativeClustering, Birch,
-    MiniBatchKMeans, SpectralClustering, AffinityPropagation,
-    MeanShift, OPTICS
+    DBSCAN,
+    OPTICS,
+    AffinityPropagation,
+    AgglomerativeClustering,
+    Birch,
+    KMeans,
+    MeanShift,
+    MiniBatchKMeans,
+    SpectralClustering,
 )
 from sklearn.mixture import GaussianMixture
 
 ClusteringMethodType = Literal[
-    "kmeans", "dbscan", "hdbscan", "agglomerative", "birch",
-    "mini_batch_kmeans", "spectral", "affinity_propagation",
-    "mean_shift", "optics", "gaussian_mixture"
+    "kmeans",
+    "dbscan",
+    "hdbscan",
+    "agglomerative",
+    "birch",
+    "mini_batch_kmeans",
+    "spectral",
+    "affinity_propagation",
+    "mean_shift",
+    "optics",
+    "gaussian_mixture",
 ]
 
 
@@ -19,7 +34,7 @@ def cluster_data(
     data: np.ndarray,
     method: ClusteringMethodType = "dbscan",
     n_clusters: Optional[int] = None,
-    **kwargs
+    **kwargs,
 ) -> np.ndarray:
     """
     Perform clustering on the input data.
@@ -40,12 +55,30 @@ def cluster_data(
     method = method.lower()
 
     # Warning if n_clusters is provided but not used
-    if method in ["dbscan", "hdbscan", "affinity_propagation", "mean_shift", "optics"] and n_clusters is not None:
-        warnings.warn(f"Clustering method '{method}' does not use the 'n_clusters' argument. Ignoring the provided value.", stacklevel=2)
+    if (
+        method in ["dbscan", "hdbscan", "affinity_propagation", "mean_shift", "optics"]
+        and n_clusters is not None
+    ):
+        warnings.warn(
+            f"Clustering method '{method}' does not use the 'n_clusters' argument. Ignoring the provided value.",
+            stacklevel=2,
+        )
 
     # Raise an error if n_clusters is needed but not provided
-    if method in ["kmeans", "agglomerative", "mini_batch_kmeans", "spectral", "gaussian_mixture"] and n_clusters is None:
-        raise ValueError(f"Clustering method '{method}' requires the 'n_clusters' argument to be specified.")
+    if (
+        method
+        in [
+            "kmeans",
+            "agglomerative",
+            "mini_batch_kmeans",
+            "spectral",
+            "gaussian_mixture",
+        ]
+        and n_clusters is None
+    ):
+        raise ValueError(
+            f"Clustering method '{method}' requires the 'n_clusters' argument to be specified."
+        )
 
     # Define the clusterer based on the method
     if method == "kmeans":
@@ -55,9 +88,12 @@ def cluster_data(
     elif method == "hdbscan":
         try:
             import hdbscan
+
             clusterer = hdbscan.HDBSCAN(**kwargs)
         except ImportError:
-            raise ImportError("HDBSCAN is not installed. Install it with 'pip install hdbscan'")
+            raise ImportError(
+                "HDBSCAN is not installed. Install it with 'pip install hdbscan'"
+            )
     elif method == "agglomerative":
         clusterer = AgglomerativeClustering(n_clusters=n_clusters, **kwargs)
     elif method == "birch":

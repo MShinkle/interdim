@@ -1,20 +1,37 @@
 from typing import Literal
+
 import numpy as np
-from sklearn.decomposition import PCA, TruncatedSVD, FastICA, NMF
-from sklearn.manifold import TSNE, Isomap, LocallyLinearEmbedding, MDS, SpectralEmbedding
+from sklearn.decomposition import NMF, PCA, FastICA, TruncatedSVD
+from sklearn.manifold import (
+    MDS,
+    TSNE,
+    Isomap,
+    LocallyLinearEmbedding,
+    SpectralEmbedding,
+)
 from sklearn.random_projection import GaussianRandomProjection, SparseRandomProjection
 
 ReductionMethodType = Literal[
-    "pca", "tsne", "umap", "truncated_svd", "fast_ica", "nmf", "isomap",
-    "lle", "mds", "spectral_embedding", "gaussian_random_projection",
-    "sparse_random_projection"
+    "pca",
+    "tsne",
+    "umap",
+    "truncated_svd",
+    "fast_ica",
+    "nmf",
+    "isomap",
+    "lle",
+    "mds",
+    "spectral_embedding",
+    "gaussian_random_projection",
+    "sparse_random_projection",
 ]
+
 
 def reduce_dimensionality(
     data: np.ndarray,
     method: ReductionMethodType = "tsne",
     n_components: int = 2,
-    **kwargs
+    **kwargs,
 ) -> np.ndarray:
     """
     Perform dimensionality reduction on the input data.
@@ -33,7 +50,7 @@ def reduce_dimensionality(
         ImportError: If UMAP is not installed when 'umap' method is selected.
     """
     method = method.lower()
-    
+
     if method == "pca":
         reducer = PCA(n_components=n_components, **kwargs)
     elif method == "tsne":
@@ -41,9 +58,12 @@ def reduce_dimensionality(
     elif method == "umap":
         try:
             from umap import UMAP
+
             reducer = UMAP(n_components=n_components, **kwargs)
         except ImportError:
-            raise ImportError("UMAP is not installed. Install it with 'pip install umap-learn'")
+            raise ImportError(
+                "UMAP is not installed. Install it with 'pip install umap-learn'"
+            )
     elif method == "truncated_svd":
         reducer = TruncatedSVD(n_components=n_components, **kwargs)
     elif method == "fast_ica":
@@ -64,5 +84,5 @@ def reduce_dimensionality(
         reducer = SparseRandomProjection(n_components=n_components, **kwargs)
     else:
         raise ValueError(f"Unsupported reduction method: {method}")
-    
+
     return reducer.fit_transform(data)
