@@ -3,8 +3,8 @@ from typing import Any, Callable, Dict, List, Literal, Optional, Union
 import dash
 import numpy as np
 import plotly.graph_objects as go
-from dash import dcc, html
-from dash.dependencies import Input, Output
+from dash import Patch, dcc, html
+from dash.dependencies import Input, Output, State
 
 
 def create_scatter_plot(x, y, z, marker_color, marker_size, marker_opacity):
@@ -85,11 +85,13 @@ def interactive_scatterplot(
     run_server: bool = True,
 ) -> dash.Dash:
     app = dash.Dash(__name__)
-    color_options = ["Custom"]
+    color_options = ["Default" if marker_color is None else "Custom"]
     if true_labels is not None:
         color_options.append("True Labels")
     if cluster_labels is not None:
         color_options.append("Clusters")
+
+    grey_text_style = {"color": "#808080"}  # Medium grey color
 
     scatter_fig = create_scatter_plot(
         x, y, z, marker_color, marker_size, marker_opacity
@@ -97,8 +99,10 @@ def interactive_scatterplot(
     color_selector = dcc.RadioItems(
         id="color-selector",
         options=[{"label": opt, "value": opt} for opt in color_options],
-        value="Custom",
+        value="Default" if marker_color is None else "Custom",
         inline=True,
+        style=grey_text_style,
+        labelStyle=grey_text_style,
     )
 
     interact_fig = go.Figure()
@@ -119,8 +123,16 @@ def interactive_scatterplot(
 
     app.layout = html.Div(
         [
-            html.H4("Marker Colors:"),
-            color_selector,
+            html.Div(
+                [
+                    html.H4(
+                        "Marker Colors",
+                        style={**grey_text_style, "margin-bottom": "5px"},
+                    ),
+                    color_selector,
+                ],
+                style={"margin-bottom": "10px"},
+            ),  # Adjust this value to control space before the graphs
             html.Div(
                 style={
                     "display": "flex",
@@ -141,14 +153,25 @@ def interactive_scatterplot(
         ]
     )
 
-    @app.callback(Output("scatter-plot", "figure"), Input("color-selector", "value"))
-    def update_color(selected_option):
-        selected_color = marker_color
+    @app.callback(
+        Output("scatter-plot", "figure"),
+        Input("color-selector", "value"),
+        State("scatter-plot", "figure"),
+    )
+    def update_color(selected_option, current_figure):
+        patched_figure = Patch()
+
         if selected_option == "True Labels":
             selected_color = true_labels
         elif selected_option == "Clusters":
             selected_color = cluster_labels
-        return create_scatter_plot(x, y, z, selected_color, marker_size, marker_opacity)
+        elif selected_option == "Default":
+            selected_color = None
+        else:  # "Custom"
+            selected_color = marker_color
+
+        patched_figure["data"][0]["marker"]["color"] = selected_color
+        return patched_figure
 
     if point_visualization:
 
