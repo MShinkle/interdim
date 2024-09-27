@@ -8,4 +8,4 @@
    interdim.reduce
    interdim.cluster
    interdim.score
-   interdim.viz
+   interdim.vis
