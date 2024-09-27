@@ -69,7 +69,7 @@ We welcome discussion and contributions!
 
 ## License
 
-InterDim is released under the BSD 3-Clause License. See the [LICENSE](LICENSE) file for details.
+InterDim is released under the BSD 3-Clause License. See the [LICENSE](https://github.com/MShinkle/interdim/blob/main/LICENSE) file for details.
 
 ## Contact
 
