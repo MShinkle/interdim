@@ -55,9 +55,9 @@ This will reduce the Iris dataset to 3 dimensions using t-SNE, clusters the data
 
 For more in-depth examples and use cases, check out our demo notebooks:
 
-1. [Iris Species Analysis](notebooks/IRIS_visualization.ipynb): Basic usage with the classic Iris dataset.
-2. [DNN Latent Space Exploration](notebooks/DNN_latents.ipynb): Visualizing deep neural network activations.
-3. [LLM Token Analysis](notebooks/LLM_token_embeddings.ipynb): Exploring language model token embeddings and layer activations.
+1. [Iris Species Analysis](https://github.com/MShinkle/interdim/blob/main/notebooks/IRIS_visualization.ipynb): Basic usage with the classic Iris dataset.
+2. [DNN Latent Space Exploration](https://github.com/MShinkle/interdim/blob/main/notebooks/DNN_latents.ipynb): Visualizing deep neural network activations.
+3. [LLM Token Analysis](https://github.com/MShinkle/interdim/blob/main/notebooks/LLM_token_embeddings.ipynb): Exploring language model token embeddings and layer activations.
 
 ## Documentation
 
