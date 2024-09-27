@@ -47,7 +47,7 @@ analysis.cluster(method='kmeans', n_clusters=3)
 analysis.show(n_components=3, point_visualization='bar')
 ```
 
-![3D Scatter Plot with Interactive Bar Charts](docs/images/iris_plot.png)
+![3D Scatter Plot with Interactive Bar Charts](https://raw.githubusercontent.com/MShinkle/interdim/refs/heads/main/docs/images/iris_plot.png)
 
 This will reduce the Iris dataset to 3 dimensions using t-SNE, clusters the data using K-means, and displays an interactive 3D scatter plot with bar charts for each data point as you hover over them.
 
