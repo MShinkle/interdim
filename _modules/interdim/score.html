@@ -74,15 +74,27 @@
              
   <h1>Source code for interdim.score</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">metrics</span>
 
 <span class="n">ScoreMethodType</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
-    <span class="s2">&quot;adjusted_mutual_info&quot;</span><span class="p">,</span> <span class="s2">&quot;adjusted_rand&quot;</span><span class="p">,</span> <span class="s2">&quot;completeness&quot;</span><span class="p">,</span> <span class="s2">&quot;fowlkes_mallows&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;homogeneity&quot;</span><span class="p">,</span> <span class="s2">&quot;mutual_info&quot;</span><span class="p">,</span> <span class="s2">&quot;normalized_mutual_info&quot;</span><span class="p">,</span> <span class="s2">&quot;rand&quot;</span><span class="p">,</span> <span class="s2">&quot;v_measure&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;contingency_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;pair_confusion_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;calinski_harabasz&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;davies_bouldin&quot;</span><span class="p">,</span> <span class="s2">&quot;silhouette&quot;</span>
+    <span class="s2">&quot;adjusted_mutual_info&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;adjusted_rand&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;completeness&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fowlkes_mallows&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;homogeneity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mutual_info&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;normalized_mutual_info&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rand&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;v_measure&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;contingency_matrix&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pair_confusion_matrix&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;calinski_harabasz&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;davies_bouldin&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span>
 <span class="p">]</span>
+
 
 <div class="viewcode-block" id="score_clustering">
 <a class="viewcode-back" href="../../_autosummary/interdim.score.html#interdim.score.score_clustering">[docs]</a>
@@ -90,17 +102,17 @@
     <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">labels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">true_labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="n">ScoreMethodType</span> <span class="o">=</span> <span class="s2">&quot;silhouette&quot;</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">ScoreMethodType</span> <span class="o">=</span> <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evaluate clustering performance using the specified method.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        X: The input data.</span>
 <span class="sd">        labels: The predicted cluster labels.</span>
 <span class="sd">        true_labels: The true cluster labels (optional).</span>
 <span class="sd">        method: The evaluation method to use.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        The computed metric (float or array).</span>
 
@@ -109,17 +121,25 @@
 <span class="sd">                    true labels are not provided for methods that require them.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">method</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    
+
     <span class="k">if</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span>
-        <span class="s2">&quot;adjusted_mutual_info&quot;</span><span class="p">,</span> <span class="s2">&quot;adjusted_rand&quot;</span><span class="p">,</span> <span class="s2">&quot;completeness&quot;</span><span class="p">,</span> <span class="s2">&quot;fowlkes_mallows&quot;</span><span class="p">,</span> 
-        <span class="s2">&quot;homogeneity&quot;</span><span class="p">,</span> <span class="s2">&quot;mutual_info&quot;</span><span class="p">,</span> <span class="s2">&quot;normalized_mutual_info&quot;</span><span class="p">,</span> <span class="s2">&quot;rand&quot;</span><span class="p">,</span> <span class="s2">&quot;v_measure&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;contingency_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;pair_confusion_matrix&quot;</span>
+        <span class="s2">&quot;adjusted_mutual_info&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;adjusted_rand&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;completeness&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fowlkes_mallows&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;homogeneity&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mutual_info&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;normalized_mutual_info&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rand&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;v_measure&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;contingency_matrix&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pair_confusion_matrix&quot;</span><span class="p">,</span>
     <span class="p">]:</span>
         <span class="k">if</span> <span class="n">true_labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> method requires true labels.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">true_labels</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of true labels does not match number of samples&quot;</span><span class="p">)</span>
-    
+
     <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;adjusted_mutual_info&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">metrics</span><span class="o">.</span><span class="n">adjusted_mutual_info_score</span><span class="p">(</span><span class="n">true_labels</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;adjusted_rand&quot;</span><span class="p">:</span>

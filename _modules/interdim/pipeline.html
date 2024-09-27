@@ -73,14 +73,17 @@
            <div itemprop="articleBody">
              
   <h1>Source code for interdim.pipeline</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span>
+
 <span class="kn">import</span> <span class="nn">dash</span>
-<span class="kn">from</span> <span class="nn">.reduce</span> <span class="kn">import</span> <span class="n">reduce_dimensionality</span><span class="p">,</span> <span class="n">ReductionMethodType</span>
-<span class="kn">from</span> <span class="nn">.cluster</span> <span class="kn">import</span> <span class="n">cluster_data</span><span class="p">,</span> <span class="n">ClusteringMethodType</span>
-<span class="kn">from</span> <span class="nn">.score</span> <span class="kn">import</span> <span class="n">score_clustering</span><span class="p">,</span> <span class="n">ScoreMethodType</span>
-<span class="kn">from</span> <span class="nn">.vis</span> <span class="kn">import</span> <span class="n">interactive_scatterplot</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.cluster</span> <span class="kn">import</span> <span class="n">ClusteringMethodType</span><span class="p">,</span> <span class="n">cluster_data</span>
+<span class="kn">from</span> <span class="nn">.reduce</span> <span class="kn">import</span> <span class="n">ReductionMethodType</span><span class="p">,</span> <span class="n">reduce_dimensionality</span>
+<span class="kn">from</span> <span class="nn">.score</span> <span class="kn">import</span> <span class="n">ScoreMethodType</span><span class="p">,</span> <span class="n">score_clustering</span>
+<span class="kn">from</span> <span class="nn">.vis</span> <span class="kn">import</span> <span class="n">InteractionPlot</span><span class="p">,</span> <span class="n">interactive_scatterplot</span>
+
 
 <div class="viewcode-block" id="InterDimAnalysis">
 <a class="viewcode-back" href="../../_autosummary/interdim.pipeline.html#interdim.pipeline.InterDimAnalysis">[docs]</a>
@@ -91,7 +94,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">true_labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the InterDimAnalysis object.</span>
@@ -104,7 +107,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">true_labels</span> <span class="o">=</span> <span class="n">true_labels</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cluster_labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cluster_score</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
@@ -113,10 +116,7 @@
 <div class="viewcode-block" id="InterDimAnalysis.reduce">
 <a class="viewcode-back" href="../../_autosummary/interdim.pipeline.html#interdim.pipeline.InterDimAnalysis.reduce">[docs]</a>
     <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">method</span><span class="p">:</span> <span class="n">ReductionMethodType</span> <span class="o">=</span> <span class="s1">&#39;tsne&#39;</span><span class="p">,</span>
-        <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">ReductionMethodType</span> <span class="o">=</span> <span class="s2">&quot;tsne&quot;</span><span class="p">,</span> <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform dimensionality reduction on the data.</span>
@@ -131,28 +131,31 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">n_components</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;If method is None, the number of features (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">) must match n_components (</span><span class="si">{</span><span class="n">n_components</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;If method is None, the number of features (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">) must match n_components (</span><span class="si">{</span><span class="n">n_components</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Skipping dimensionality reduction as method is None&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Performing dimensionality reduction via </span><span class="si">{</span><span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> with default arguments.&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Performing dimensionality reduction via </span><span class="si">{</span><span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> with default arguments.&quot;</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Performing dimensionality reduction via </span><span class="si">{</span><span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> with the following custom arguments:&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Performing dimensionality reduction via </span><span class="si">{</span><span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> with the following custom arguments:&quot;</span>
+                    <span class="p">)</span>
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            
+
             <span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span> <span class="o">=</span> <span class="n">reduce_dimensionality</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> 
-                <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> 
-                <span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span> 
-                <span class="o">**</span><span class="n">kwargs</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
             <span class="p">)</span>
-        
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reduced data shape: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span></div>
 
 
@@ -160,9 +163,9 @@
 <a class="viewcode-back" href="../../_autosummary/interdim.pipeline.html#interdim.pipeline.InterDimAnalysis.cluster">[docs]</a>
     <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">method</span><span class="p">:</span> <span class="n">ClusteringMethodType</span> <span class="o">=</span> <span class="s1">&#39;dbscan&#39;</span><span class="p">,</span>
-        <span class="n">which_data</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;reduced&#39;</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span>
+        <span class="n">method</span><span class="p">:</span> <span class="n">ClusteringMethodType</span> <span class="o">=</span> <span class="s2">&quot;dbscan&quot;</span><span class="p">,</span>
+        <span class="n">which_data</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reduced&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform clustering on the chosen dataset (original or reduced).</span>
@@ -179,11 +182,13 @@
 <span class="sd">            ValueError: If the selected dataset hasn&#39;t been prepared.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Determine which data to use for clustering</span>
-        <span class="k">if</span> <span class="n">which_data</span> <span class="o">==</span> <span class="s1">&#39;original&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">which_data</span> <span class="o">==</span> <span class="s2">&quot;original&quot;</span><span class="p">:</span>
             <span class="n">clustering_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
-        <span class="k">elif</span> <span class="n">which_data</span> <span class="o">==</span> <span class="s1">&#39;reduced&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">which_data</span> <span class="o">==</span> <span class="s2">&quot;reduced&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;which_data&#39; is set to &#39;reduced&#39;, but &#39;reduced_data&#39; is not set. Please run the &#39;reduce&#39; method first or use &#39;original&#39; data.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;&#39;which_data&#39; is set to &#39;reduced&#39;, but &#39;reduced_data&#39; is not set. Please run the &#39;reduce&#39; method first or use &#39;original&#39; data.&quot;</span>
+                <span class="p">)</span>
             <span class="n">clustering_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;which_data must be either &#39;original&#39; or &#39;reduced&#39;&quot;</span><span class="p">)</span>
@@ -195,31 +200,30 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Performing clustering via </span><span class="si">{</span><span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> with default arguments.&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Performing clustering via </span><span class="si">{</span><span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> with default arguments.&quot;</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Performing clustering via </span><span class="si">{</span><span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> with the following custom arguments:&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Performing clustering via </span><span class="si">{</span><span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> with the following custom arguments:&quot;</span>
+                    <span class="p">)</span>
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            
-            <span class="bp">self</span><span class="o">.</span><span class="n">cluster_labels</span> <span class="o">=</span> <span class="n">cluster_data</span><span class="p">(</span>
-                <span class="n">clustering_data</span><span class="p">,</span> 
-                <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> 
-                <span class="o">**</span><span class="n">kwargs</span>
-            <span class="p">)</span>
-            
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">cluster_labels</span> <span class="o">=</span> <span class="n">cluster_data</span><span class="p">(</span><span class="n">clustering_data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="n">n_clusters</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster_labels</span><span class="p">))</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Clustering complete. Number of clusters: </span><span class="si">{</span><span class="n">n_clusters</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_labels</span></div>
 
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_labels</span></div>
 
 
 <div class="viewcode-block" id="InterDimAnalysis.score">
 <a class="viewcode-back" href="../../_autosummary/interdim.pipeline.html#interdim.pipeline.InterDimAnalysis.score">[docs]</a>
     <span class="k">def</span> <span class="nf">score</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">method</span><span class="p">:</span> <span class="n">ScoreMethodType</span> <span class="o">=</span> <span class="s1">&#39;silhouette&#39;</span><span class="p">,</span>
-        <span class="n">true_labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">method</span><span class="p">:</span> <span class="n">ScoreMethodType</span> <span class="o">=</span> <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span>
+        <span class="n">true_labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Evaluate the clustering performance.</span>
@@ -238,51 +242,53 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You must run the &#39;reduce&#39; method before scoring.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You must run the &#39;cluster&#39; method before scoring.&quot;</span><span class="p">)</span>
-        
+
         <span class="c1"># Use true_labels passed to this method if provided, otherwise use the ones from initialization</span>
         <span class="n">labels_to_use</span> <span class="o">=</span> <span class="n">true_labels</span> <span class="k">if</span> <span class="n">true_labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">true_labels</span>
-        
-        <span class="bp">self</span><span class="o">.</span><span class="n">cluster_score</span> <span class="o">=</span> <span class="n">score_clustering</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_labels</span><span class="p">,</span> <span class="n">labels_to_use</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
-        
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cluster_score</span> <span class="o">=</span> <span class="n">score_clustering</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_labels</span><span class="p">,</span> <span class="n">labels_to_use</span><span class="p">,</span> <span class="n">method</span>
+        <span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Clustering Evaluation Result (</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">):&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Score: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster_score</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_score</span></div>
 
 
 <div class="viewcode-block" id="InterDimAnalysis.show">
 <a class="viewcode-back" href="../../_autosummary/interdim.pipeline.html#interdim.pipeline.InterDimAnalysis.show">[docs]</a>
     <span class="k">def</span> <span class="nf">show</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> 
-            <span class="n">n_components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> 
-            <span class="n">which_data</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;reduced&#39;</span><span class="p">,</span> 
-            <span class="n">interact_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">x_label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">y_label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">z_label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">marker_color</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">marker_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
-            <span class="n">marker_opacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
-            <span class="n">interact_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;hover&quot;</span><span class="p">,</span> <span class="s2">&quot;click&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;hover&#39;</span><span class="p">,</span>
-            <span class="n">run_server</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dash</span><span class="o">.</span><span class="n">Dash</span><span class="p">:</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">n_components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">which_data</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reduced&quot;</span><span class="p">,</span>
+        <span class="n">point_visualization</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
+            <span class="n">Union</span><span class="p">[</span>
+                <span class="n">Callable</span><span class="p">,</span>
+                <span class="n">Literal</span><span class="p">[</span>
+                    <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;box&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;histogram&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;line&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;violin&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">marker_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">interact_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;hover&quot;</span><span class="p">,</span> <span class="s2">&quot;click&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;hover&quot;</span><span class="p">,</span>
+        <span class="n">port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dash</span><span class="o">.</span><span class="n">Dash</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate an interactive visualization of the data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            n_components: Number of components to show (1, 2, or 3).</span>
 <span class="sd">            which_data: Which dataset to show (&#39;original&#39; or &#39;reduced&#39;).</span>
-<span class="sd">            interact_fn: Function to call on interaction events.</span>
-<span class="sd">            x_label: Label for X-axis.</span>
-<span class="sd">            y_label: Label for Y-axis.</span>
-<span class="sd">            z_label: Label for Z-axis.</span>
-<span class="sd">            marker_color: Custom color for markers. Can be a single color (e.g., &#39;red&#39;, &#39;#00FF00&#39;) </span>
-<span class="sd">                        or an array of colors matching the number of data points.</span>
-<span class="sd">            marker_size: Size of the markers.</span>
-<span class="sd">            marker_opacity: Opacity of the markers.</span>
+<span class="sd">            point_visualization: Either a function or a string specifying the plot type for interaction events.</span>
+<span class="sd">            marker_kwargs: Dictionary of marker properties.</span>
 <span class="sd">            interact_mode: Interaction mode (&#39;hover&#39; or &#39;click&#39;).</span>
-<span class="sd">            run_server: Whether to run the Dash server.</span>
+<span class="sd">            port: Port to run the Dash server on. If None, a free port will be found automatically.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            dash.Dash: A Dash application instance for the interactive plot.</span>
@@ -290,26 +296,39 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If invalid options are selected or required methods haven&#39;t been run.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Determine which data to use</span>
-        <span class="k">if</span> <span class="n">which_data</span> <span class="o">==</span> <span class="s1">&#39;original&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">which_data</span> <span class="o">==</span> <span class="s2">&quot;original&quot;</span><span class="p">:</span>
             <span class="n">vis_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
-        <span class="k">elif</span> <span class="n">which_data</span> <span class="o">==</span> <span class="s1">&#39;reduced&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">which_data</span> <span class="o">==</span> <span class="s2">&quot;reduced&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;&#39;which_data&#39; is set to &#39;reduced&#39;, but &#39;reduced_data&#39; is not set. To show reduced data, either set the &#39;reduced_data&#39; property of this object manually or generate it by running the &#39;reduce&#39; method. Showing the &#39;original&#39; data instead.&quot;</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;&#39;which_data&#39; is set to &#39;reduced&#39;, but &#39;reduced_data&#39; is not set. To show reduced data, either set the &#39;reduced_data&#39; property of this object manually or generate it by running the &#39;reduce&#39; method. Showing the &#39;original&#39; data instead.&quot;</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
                 <span class="n">vis_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">vis_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_data</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;which_data must be either &#39;original&#39; or &#39;reduced&#39;&quot;</span><span class="p">)</span>
 
-
-        <span class="c1"># Handle n_components</span>
         <span class="k">if</span> <span class="n">n_components</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_components (</span><span class="si">{</span><span class="n">n_components</span><span class="si">}</span><span class="s2">) &gt; 3, only the first 3 components will be shown.&quot;</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;n_components (</span><span class="si">{</span><span class="n">n_components</span><span class="si">}</span><span class="s2">) &gt; 3, only the first 3 components will be shown.&quot;</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">n_components</span> <span class="o">=</span> <span class="mi">3</span>
+
         <span class="k">if</span> <span class="n">n_components</span> <span class="o">!=</span> <span class="n">vis_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_components (</span><span class="si">{</span><span class="n">n_components</span><span class="si">}</span><span class="s2">) is different than the number of data features (</span><span class="si">{</span><span class="n">vis_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">), only the first </span><span class="si">{</span><span class="nb">min</span><span class="p">(</span><span class="n">n_components</span><span class="p">,</span><span class="w"> </span><span class="n">vis_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2"> components will be shown.&quot;</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;n_components (</span><span class="si">{</span><span class="n">n_components</span><span class="si">}</span><span class="s2">) is different than the number of data features (</span><span class="si">{</span><span class="n">vis_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">), only the first </span><span class="si">{</span><span class="nb">min</span><span class="p">(</span><span class="n">n_components</span><span class="p">,</span><span class="w"> </span><span class="n">vis_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2"> components will be shown.&quot;</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">n_components</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_components</span><span class="p">,</span> <span class="n">vis_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">point_visualization</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">point_visualization</span> <span class="o">=</span> <span class="n">InteractionPlot</span><span class="p">(</span>
+                <span class="n">data_source</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> 
+                <span class="n">plot_type</span><span class="o">=</span><span class="n">point_visualization</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="n">app</span> <span class="o">=</span> <span class="n">interactive_scatterplot</span><span class="p">(</span>
             <span class="n">x</span><span class="o">=</span><span class="n">vis_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
@@ -317,61 +336,14 @@
             <span class="n">z</span><span class="o">=</span><span class="n">vis_data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">n_components</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">true_labels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">true_labels</span><span class="p">,</span>
             <span class="n">cluster_labels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster_labels</span><span class="p">,</span>
-            <span class="n">interact_fn</span><span class="o">=</span><span class="n">interact_fn</span><span class="p">,</span>
-            <span class="n">x_label</span><span class="o">=</span><span class="n">x_label</span><span class="p">,</span>
-            <span class="n">y_label</span><span class="o">=</span><span class="n">y_label</span><span class="p">,</span>
-            <span class="n">z_label</span><span class="o">=</span><span class="n">z_label</span><span class="p">,</span>
-            <span class="n">marker_color</span><span class="o">=</span><span class="n">marker_color</span><span class="p">,</span>
-            <span class="n">marker_size</span><span class="o">=</span><span class="n">marker_size</span><span class="p">,</span>
-            <span class="n">marker_opacity</span><span class="o">=</span><span class="n">marker_opacity</span><span class="p">,</span>
+            <span class="n">point_visualization</span><span class="o">=</span><span class="n">point_visualization</span><span class="p">,</span>
+            <span class="n">marker_kwargs</span><span class="o">=</span><span class="n">marker_kwargs</span><span class="p">,</span>
             <span class="n">interact_mode</span><span class="o">=</span><span class="n">interact_mode</span><span class="p">,</span>
-            <span class="n">run_server</span><span class="o">=</span><span class="n">run_server</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">app</span></div>
 </div>
-
-
-
-<div class="viewcode-block" id="analyze_and_show">
-<a class="viewcode-back" href="../../_autosummary/interdim.pipeline.html#interdim.pipeline.analyze_and_show">[docs]</a>
-<span class="k">def</span> <span class="nf">analyze_and_show</span><span class="p">(</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
-    <span class="n">true_labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-    <span class="n">reduction_method</span><span class="p">:</span> <span class="n">ReductionMethodType</span> <span class="o">=</span> <span class="s1">&#39;tsne&#39;</span><span class="p">,</span>
-    <span class="n">clustering_method</span><span class="p">:</span> <span class="n">ClusteringMethodType</span> <span class="o">=</span> <span class="s1">&#39;dbscan&#39;</span><span class="p">,</span>
-    <span class="n">scoring_method</span><span class="p">:</span> <span class="n">ScoreMethodType</span> <span class="o">=</span> <span class="s1">&#39;silhouette&#39;</span><span class="p">,</span> 
-    <span class="n">reduction_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">clustering_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-    <span class="n">viz_func</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InterDimAnalysis</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Main function for easy use of the InterDim package.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        data: Input data for analysis.</span>
-<span class="sd">        n_components: Number of components for dimensionality reduction.</span>
-<span class="sd">        true_labels: True labels for supervised scoring methods (optional).</span>
-<span class="sd">        reduction_method: Method for dimensionality reduction.</span>
-<span class="sd">        clustering_method: Method for clustering.</span>
-<span class="sd">        scoring_method: Method for scoring clustering performance.</span>
-<span class="sd">        reduction_kwargs: Additional parameters for reduction method (optional).</span>
-<span class="sd">        clustering_kwargs: Additional parameters for clustering method (optional).</span>
-<span class="sd">        viz_func: Custom visualization function (optional).</span>
-<span class="sd">        verbose: Whether to print progress information.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        An InterDimAnalysis object with the analysis results.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">analysis</span> <span class="o">=</span> <span class="n">InterDimAnalysis</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">true_labels</span><span class="p">,</span> <span class="n">viz_func</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
-    <span class="n">analysis</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">reduction_method</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">reduction_kwargs</span> <span class="ow">or</span> <span class="p">{}))</span>
-    <span class="n">analysis</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">clustering_method</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">clustering_kwargs</span> <span class="ow">or</span> <span class="p">{}))</span>
-    <span class="n">analysis</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">scoring_method</span><span class="p">)</span>
-    <span class="n">analysis</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">)</span>
-    
-    <span class="k">return</span> <span class="n">analysis</span></div>
 
 </pre></div>
 

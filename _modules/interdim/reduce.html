@@ -74,16 +74,33 @@
              
   <h1>Source code for interdim.reduce</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span><span class="p">,</span> <span class="n">TruncatedSVD</span><span class="p">,</span> <span class="n">FastICA</span><span class="p">,</span> <span class="n">NMF</span>
-<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="kn">import</span> <span class="n">TSNE</span><span class="p">,</span> <span class="n">Isomap</span><span class="p">,</span> <span class="n">LocallyLinearEmbedding</span><span class="p">,</span> <span class="n">MDS</span><span class="p">,</span> <span class="n">SpectralEmbedding</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">NMF</span><span class="p">,</span> <span class="n">PCA</span><span class="p">,</span> <span class="n">FastICA</span><span class="p">,</span> <span class="n">TruncatedSVD</span>
+<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MDS</span><span class="p">,</span>
+    <span class="n">TSNE</span><span class="p">,</span>
+    <span class="n">Isomap</span><span class="p">,</span>
+    <span class="n">LocallyLinearEmbedding</span><span class="p">,</span>
+    <span class="n">SpectralEmbedding</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">sklearn.random_projection</span> <span class="kn">import</span> <span class="n">GaussianRandomProjection</span><span class="p">,</span> <span class="n">SparseRandomProjection</span>
 
 <span class="n">ReductionMethodType</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
-    <span class="s2">&quot;pca&quot;</span><span class="p">,</span> <span class="s2">&quot;tsne&quot;</span><span class="p">,</span> <span class="s2">&quot;umap&quot;</span><span class="p">,</span> <span class="s2">&quot;truncated_svd&quot;</span><span class="p">,</span> <span class="s2">&quot;fast_ica&quot;</span><span class="p">,</span> <span class="s2">&quot;nmf&quot;</span><span class="p">,</span> <span class="s2">&quot;isomap&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;lle&quot;</span><span class="p">,</span> <span class="s2">&quot;mds&quot;</span><span class="p">,</span> <span class="s2">&quot;spectral_embedding&quot;</span><span class="p">,</span> <span class="s2">&quot;gaussian_random_projection&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;sparse_random_projection&quot;</span>
+    <span class="s2">&quot;pca&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tsne&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;umap&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;truncated_svd&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fast_ica&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nmf&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;isomap&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lle&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;spectral_embedding&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gaussian_random_projection&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sparse_random_projection&quot;</span><span class="p">,</span>
 <span class="p">]</span>
+
 
 <div class="viewcode-block" id="reduce_dimensionality">
 <a class="viewcode-back" href="../../_autosummary/interdim.reduce.html#interdim.reduce.reduce_dimensionality">[docs]</a>
@@ -91,7 +108,7 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">method</span><span class="p">:</span> <span class="n">ReductionMethodType</span> <span class="o">=</span> <span class="s2">&quot;tsne&quot;</span><span class="p">,</span>
     <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform dimensionality reduction on the input data.</span>
@@ -110,7 +127,7 @@
 <span class="sd">        ImportError: If UMAP is not installed when &#39;umap&#39; method is selected.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">method</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    
+
     <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;pca&quot;</span><span class="p">:</span>
         <span class="n">reducer</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;tsne&quot;</span><span class="p">:</span>
@@ -118,9 +135,12 @@
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;umap&quot;</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">umap</span> <span class="kn">import</span> <span class="n">UMAP</span>
+
             <span class="n">reducer</span> <span class="o">=</span> <span class="n">UMAP</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;UMAP is not installed. Install it with &#39;pip install umap-learn&#39;&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                <span class="s2">&quot;UMAP is not installed. Install it with &#39;pip install umap-learn&#39;&quot;</span>
+            <span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;truncated_svd&quot;</span><span class="p">:</span>
         <span class="n">reducer</span> <span class="o">=</span> <span class="n">TruncatedSVD</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;fast_ica&quot;</span><span class="p">:</span>
@@ -141,7 +161,7 @@
         <span class="n">reducer</span> <span class="o">=</span> <span class="n">SparseRandomProjection</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported reduction method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    
+
     <span class="k">return</span> <span class="n">reducer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
 </pre></div>
