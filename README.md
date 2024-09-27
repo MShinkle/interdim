@@ -6,21 +6,71 @@
 
 ### Interactive Dimensionality Reduction, Clustering, and Visualization
 
-InterDim is a Python package for interactive exploration of latent data dimensions. It wraps existing tools for dimensionality reduction, clustering, and data visualization in a streamlined interface.
+InterDim is a Python package for interactive exploration of latent data dimensions. It wraps existing tools for dimensionality reduction, clustering, and data visualization in a streamlined interface, allowing for quick and intuitive analysis of high-dimensional data.
 
-Code: [github.com/MShinkle/interdim](https://github.com/MShinkle/interdim)
+## Features
 
-API Documentation: [mshinkle.github.io/interdim](https://mshinkle.github.io/interdim)
+- Easy-to-use pipeline for dimensionality reduction, clustering, and visualization
+- Interactive 3D scatter plots for exploring reduced data
+- Support for various dimensionality reduction techniques (PCA, t-SNE, UMAP, etc.)
+- Multiple clustering algorithms (K-means, DBSCAN, etc.)
+- Customizable point visualizations for detailed data exploration
 
 ## Installation
-You can install from [pypi](https://pypi.org/project/interdim/) via `pip` (recommended):
+
+You can install from [PyPI](https://pypi.org/project/interdim/) via `pip` (recommended):
 
 ```bash
 pip install interdim
 ```
 
-Or from source, by cloning, navigating into the base dir, and installing via:
+Or from source:
 
 ```bash
+git clone https://github.com/MShinkle/interdim.git
+cd interdim
 pip install .
 ```
+
+## Quick Start
+
+Here's a basic example using the Iris dataset:
+
+```python
+from sklearn.datasets import load_iris
+from interdim import InterDimAnalysis
+
+iris = load_iris()
+analysis = InterDimAnalysis(iris.data, true_labels=iris.target)
+analysis.reduce(method='tsne', n_components=3)
+analysis.cluster(method='kmeans', n_clusters=3)
+analysis.show(n_components=3, point_visualization='bar')
+```
+
+![3D Scatter Plot with Interactive Bar Charts](docs/images/iris_plot.png)
+
+This will reduce the Iris dataset to 3 dimensions using t-SNE, clusters the data using K-means, and displays an interactive 3D scatter plot with bar charts for each data point as you hover over them.
+
+## Demo Notebooks
+
+For more in-depth examples and use cases, check out our demo notebooks:
+
+1. [Iris Species Analysis](notebooks/IRIS_visualization.ipynb): Basic usage with the classic Iris dataset.
+2. [DNN Latent Space Exploration](notebooks/DNN_latents.ipynb): Visualizing deep neural network activations.
+3. [LLM Token Analysis](notebooks/LLM_token_embeddings.ipynb): Exploring language model token embeddings and layer activations.
+
+## Documentation
+
+For detailed API documentation and advanced usage, visit our [GitHub Pages](https://MShinkle.github.io/interdim).
+
+## Contributing
+
+We welcome discussion and contributions!
+
+## License
+
+InterDim is released under the BSD 3-Clause License. See the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+For questions and feedback, please [open an issue](https://github.com/MShinkle/interdim/issues) on GitHub.

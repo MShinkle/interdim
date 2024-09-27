@@ -1,5 +1,5 @@
 import warnings
-from typing import Callable, Literal, Optional, Union
+from typing import Callable, Literal, Optional, Union, Dict
 
 import dash
 import numpy as np
@@ -184,11 +184,9 @@ class InterDimAnalysis:
                 ],
             ]
         ] = None,
-        marker_color: Optional[Union[str, np.ndarray]] = None,
-        marker_size: int = 5,
-        marker_opacity: float = 0.5,
+        marker_kwargs: Optional[Dict] = None,
         interact_mode: Literal["hover", "click"] = "hover",
-        run_server: bool = True,
+        port: Optional[int] = None,
     ) -> dash.Dash:
         """
         Generate an interactive visualization of the data.
@@ -197,11 +195,9 @@ class InterDimAnalysis:
             n_components: Number of components to show (1, 2, or 3).
             which_data: Which dataset to show ('original' or 'reduced').
             point_visualization: Either a function or a string specifying the plot type for interaction events.
-            marker_color: Custom color for markers, can be a single color or an array of colors.
-            marker_size: Size of the markers.
-            marker_opacity: Opacity of the markers.
+            marker_kwargs: Dictionary of marker properties.
             interact_mode: Interaction mode ('hover' or 'click').
-            run_server: Whether to run the Dash server.
+            port: Port to run the Dash server on. If None, a free port will be found automatically.
 
         Returns:
             dash.Dash: A Dash application instance for the interactive plot.
@@ -239,7 +235,8 @@ class InterDimAnalysis:
 
         if isinstance(point_visualization, str):
             point_visualization = InteractionPlot(
-                data_source=self.data, plot_type=point_visualization
+                data_source=self.data, 
+                plot_type=point_visualization,
             )
 
         app = interactive_scatterplot(
@@ -249,11 +246,9 @@ class InterDimAnalysis:
             true_labels=self.true_labels,
             cluster_labels=self.cluster_labels,
             point_visualization=point_visualization,
-            marker_color=marker_color,
-            marker_size=marker_size,
-            marker_opacity=marker_opacity,
+            marker_kwargs=marker_kwargs,
             interact_mode=interact_mode,
-            run_server=run_server,
+            port=port,
         )
 
         return app
