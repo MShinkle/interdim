@@ -1,0 +1,25 @@
+﻿interdim.vis
+============
+
+.. automodule:: interdim.vis
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      create_scatter_plot
+      find_free_port
+      interactive_scatterplot
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Any
+      Input
+      InteractionPlot
+      Output
+      Patch
+      State
+   
