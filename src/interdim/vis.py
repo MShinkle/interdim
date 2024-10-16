@@ -235,7 +235,7 @@ def interactive_scatterplot(
     if verbose:
         print(f"Dash server running on http://127.0.0.1:{port}/")
     
-    app.run_server(debug=True, port=port)
+    app.run_server(debug=False, port=port)
 
     return app
 
