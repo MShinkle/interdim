@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Literal, Optional, Union
+from typing import Any, Callable, Dict, Literal, Optional, Union, List
 
 import dash
 import numpy as np
@@ -7,50 +7,49 @@ from dash import Patch, dcc, html
 from dash.dependencies import Input, Output, State
 import socket
 
+
 def find_free_port():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(('', 0))
+        s.bind(("", 0))
         return s.getsockname()[1]
 
-def create_scatter_plot(x, y, z, marker_kwargs):
+
+def create_scatter_plot(x, y, z, marker_kwargs, scatter_kwargs=None):
     """Helper function to create scatter plot"""
+    # Default scatter kwargs
+    default_scatter_kwargs = {
+        "mode": "markers",
+        "marker": marker_kwargs,
+        "showlegend": False,
+    }
+
+    # Update default_scatter_kwargs with user-provided scatter_kwargs
+    if scatter_kwargs:
+        default_scatter_kwargs.update(scatter_kwargs)
+
     if y is None and z is None:
         # 1D scatter plot
-        scatter_fig = go.Figure(
-            data=[
-                go.Scatter(
-                    x=x,
-                    y=np.zeros_like(x),
-                    mode="markers",
-                    marker=marker_kwargs,
-                    showlegend=False,
-                )
-            ]
-        )
+        default_scatter_kwargs.update({
+            "x": x,
+            "y": np.zeros_like(x),
+        })
+        scatter_fig = go.Figure(data=[go.Scatter(**default_scatter_kwargs)])
         scatter_fig.update_yaxes(visible=False)
     elif z is None:
         # 2D scatter plot
-        scatter_fig = go.Figure(
-            data=[
-                go.Scatter(
-                    x=x, y=y, mode="markers", marker=marker_kwargs, showlegend=False
-                )
-            ]
-        )
+        default_scatter_kwargs.update({
+            "x": x,
+            "y": y,
+        })
+        scatter_fig = go.Figure(data=[go.Scatter(**default_scatter_kwargs)])
     else:
         # 3D scatter plot
-        scatter_fig = go.Figure(
-            data=[
-                go.Scatter3d(
-                    x=x,
-                    y=y,
-                    z=z,
-                    mode="markers",
-                    marker=marker_kwargs,
-                    showlegend=False,
-                )
-            ]
-        )
+        default_scatter_kwargs.update({
+            "x": x,
+            "y": y,
+            "z": z,
+        })
+        scatter_fig = go.Figure(data=[go.Scatter3d(**default_scatter_kwargs)])
         scatter_fig.update_layout(
             scene=dict(
                 xaxis_title=None,
@@ -77,13 +76,16 @@ def interactive_scatterplot(
     cluster_labels: Optional[np.ndarray] = None,
     point_visualization: Optional[Union[Callable, str]] = None,
     marker_kwargs: Optional[Dict] = None,
+    scatter_kwargs: Optional[Dict] = None,
     interact_mode: Literal["hover", "click"] = "hover",
     port: Optional[int] = None,
 ) -> dash.Dash:
     app = dash.Dash(__name__)
     if marker_kwargs is None:
         marker_kwargs = {}
-    color_options = ["Default" if marker_kwargs is None or "color" not in marker_kwargs else "Custom"]
+    color_options = [
+        "Default" if marker_kwargs is None or "color" not in marker_kwargs else "Custom"
+    ]
     if true_labels is not None:
         color_options.append("True Labels")
     if cluster_labels is not None:
@@ -91,13 +93,11 @@ def interactive_scatterplot(
 
     grey_text_style = {"color": "#808080"}  # Medium grey color
 
-    scatter_fig = create_scatter_plot(
-        x, y, z, marker_kwargs
-    )
+    scatter_fig = create_scatter_plot(x, y, z, marker_kwargs, scatter_kwargs)
     color_selector = dcc.RadioItems(
         id="color-selector",
         options=[{"label": opt, "value": opt} for opt in color_options],
-        value="Default" if marker_kwargs is None or "color" not in marker_kwargs else "Custom",
+        value="True Labels" if true_labels is not None else color_options[0],
         inline=True,
         style=grey_text_style,
         labelStyle=grey_text_style,
@@ -162,9 +162,13 @@ def interactive_scatterplot(
             patched_figure["data"][0]["marker"]["color"] = true_labels
         elif selected_color == "Clusters" and cluster_labels is not None:
             patched_figure["data"][0]["marker"]["color"] = cluster_labels
-            patched_figure["data"][0]["marker"]["colorscale"] = marker_kwargs.get("colorscale", "Viridis")
+            patched_figure["data"][0]["marker"]["colorscale"] = marker_kwargs.get(
+                "colorscale", "Viridis"
+            )
         else:
-            patched_figure["data"][0]["marker"]["color"] = marker_kwargs.get("color", "blue")
+            patched_figure["data"][0]["marker"]["color"] = marker_kwargs.get(
+                "color", "blue"
+            )
         return patched_figure
 
     if point_visualization:
@@ -199,7 +203,14 @@ def interactive_scatterplot(
 
 
 class InteractionPlot:
-    def __init__(self, data_source, plot_type="bar", trace_kwargs=None, layout_kwargs=None, format_data=True):
+    def __init__(
+        self,
+        data_source,
+        plot_type="bar",
+        trace_kwargs=None,
+        layout_kwargs=None,
+        format_data=True,
+    ):
         self.data_source = data_source
         self.plot_type = plot_type
         self.trace_kwargs = trace_kwargs or {}
@@ -252,14 +263,14 @@ class InteractionPlot:
     def _plot(self, sample: Any, fig: go.Figure) -> go.Figure:
         if self.plot_type.lower() == "text":
             default_trace_kwargs = {
-                'x': [0],
-                'y': [0],
-                'mode': 'text',
-                'text': [sample],
-                'textposition': "middle center",
-                'textfont': dict(size=12)
+                "x": [0],
+                "y": [0],
+                "mode": "text",
+                "text": [sample],
+                "textposition": "middle center",
+                "textfont": dict(size=12),
             }
-            default_trace_kwargs.update(self.trace_kwargs)            
+            default_trace_kwargs.update(self.trace_kwargs)
             fig.add_trace(go.Scatter(**default_trace_kwargs))
             fig.update_xaxes(visible=False, range=[-1, 1])
             fig.update_yaxes(visible=False, range=[-1, 1])
@@ -288,8 +299,6 @@ class InteractionPlot:
             fig.add_trace(go.Surface(z=sample, **self.trace_kwargs))
         else:
             raise ValueError(f"Plot type '{self.plot_type}' is not supported.")
-        
-        fig.update_layout(
-            **self.layout_kwargs
-        )
+
+        fig.update_layout(**self.layout_kwargs)
         return fig

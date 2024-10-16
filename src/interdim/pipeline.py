@@ -1,5 +1,5 @@
 import warnings
-from typing import Callable, Literal, Optional, Union, Dict
+from typing import Callable, Literal, Optional, Union, Dict, List
 
 import dash
 import numpy as np
@@ -185,6 +185,7 @@ class InterDimAnalysis:
             ]
         ] = None,
         marker_kwargs: Optional[Dict] = None,
+        scatter_kwargs: Optional[Dict] = None,
         interact_mode: Literal["hover", "click"] = "hover",
         port: Optional[int] = None,
     ) -> dash.Dash:
@@ -196,6 +197,7 @@ class InterDimAnalysis:
             which_data: Which dataset to show ('original' or 'reduced').
             point_visualization: Either a function or a string specifying the plot type for interaction events.
             marker_kwargs: Dictionary of marker properties.
+            scatter_kwargs: Dictionary of scatter plot properties.
             interact_mode: Interaction mode ('hover' or 'click').
             port: Port to run the Dash server on. If None, a free port will be found automatically.
 
@@ -247,6 +249,7 @@ class InterDimAnalysis:
             cluster_labels=self.cluster_labels,
             point_visualization=point_visualization,
             marker_kwargs=marker_kwargs,
+            scatter_kwargs=scatter_kwargs,
             interact_mode=interact_mode,
             port=port,
         )
