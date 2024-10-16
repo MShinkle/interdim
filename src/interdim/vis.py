@@ -9,13 +9,26 @@ import socket
 
 
 def find_free_port():
+    """Find and return a free port number."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("", 0))
         return s.getsockname()[1]
 
 
 def create_scatter_plot(x, y, z, marker_kwargs, scatter_kwargs=None):
-    """Helper function to create scatter plot"""
+    """
+    Create a scatter plot figure.
+
+    Args:
+        x (array-like): x-coordinates of the points.
+        y (array-like, optional): y-coordinates of the points.
+        z (array-like, optional): z-coordinates of the points.
+        marker_kwargs (dict): Keyword arguments for marker properties.
+        scatter_kwargs (dict, optional): Additional keyword arguments for the scatter plot.
+
+    Returns:
+        plotly.graph_objs.Figure: The created scatter plot figure.
+    """
     # Default scatter kwargs
     default_scatter_kwargs = {
         "mode": "markers",
@@ -27,6 +40,7 @@ def create_scatter_plot(x, y, z, marker_kwargs, scatter_kwargs=None):
     if scatter_kwargs:
         default_scatter_kwargs.update(scatter_kwargs)
 
+    # Create 1D, 2D, or 3D scatter plot based on provided coordinates
     if y is None and z is None:
         # 1D scatter plot
         default_scatter_kwargs.update({
@@ -79,7 +93,27 @@ def interactive_scatterplot(
     scatter_kwargs: Optional[Dict] = None,
     interact_mode: Literal["hover", "click"] = "hover",
     port: Optional[int] = None,
+    verbose: bool = False,
 ) -> dash.Dash:
+    """
+    Create an interactive scatter plot using Dash.
+
+    Args:
+        x (np.ndarray): x-coordinates of the points.
+        y (np.ndarray, optional): y-coordinates of the points.
+        z (np.ndarray, optional): z-coordinates of the points.
+        true_labels (np.ndarray, optional): True labels for the points.
+        cluster_labels (np.ndarray, optional): Cluster labels for the points.
+        point_visualization (Callable or str, optional): Function or string specifying point visualization.
+        marker_kwargs (dict, optional): Keyword arguments for marker properties.
+        scatter_kwargs (dict, optional): Additional keyword arguments for the scatter plot.
+        interact_mode (str): Interaction mode, either "hover" or "click".
+        port (int, optional): Port number for the Dash server.
+        verbose (bool, optional): Whether to print the address at which the Dash server is running. Defaults to False.
+
+    Returns:
+        dash.Dash: A Dash application instance for the interactive plot.
+    """
     app = dash.Dash(__name__)
     if marker_kwargs is None:
         marker_kwargs = {}
@@ -197,12 +231,27 @@ def interactive_scatterplot(
 
     if port is None:
         port = find_free_port()
+    
+    if verbose:
+        print(f"Dash server running on http://127.0.0.1:{port}/")
+    
     app.run_server(debug=True, port=port)
 
     return app
 
 
 class InteractionPlot:
+    """
+    A class for creating interactive plots based on data points.
+
+    Attributes:
+        data_source: The source of data for plotting.
+        plot_type (str): The type of plot to create.
+        trace_kwargs (dict): Additional keyword arguments for the trace.
+        layout_kwargs (dict): Additional keyword arguments for the layout.
+        format_data (bool): Whether to format the data before plotting.
+    """
+
     def __init__(
         self,
         data_source,
@@ -211,6 +260,16 @@ class InteractionPlot:
         layout_kwargs=None,
         format_data=True,
     ):
+        """
+        Initialize the InteractionPlot object.
+
+        Args:
+            data_source: The source of data for plotting.
+            plot_type (str, optional): The type of plot to create. Defaults to "bar".
+            trace_kwargs (dict, optional): Additional keyword arguments for the trace.
+            layout_kwargs (dict, optional): Additional keyword arguments for the layout.
+            format_data (bool, optional): Whether to format the data before plotting. Defaults to True.
+        """
         self.data_source = data_source
         self.plot_type = plot_type
         self.trace_kwargs = trace_kwargs or {}
@@ -218,10 +277,32 @@ class InteractionPlot:
         self.format_data = format_data
 
     def __call__(self, index: int, fig: go.Figure) -> go.Figure:
+        """
+        Create a plot for a specific data point.
+
+        Args:
+            index (int): The index of the data point to plot.
+            fig (go.Figure): The figure object to update with the plot.
+
+        Returns:
+            go.Figure: The updated figure object.
+        """
         sample = self.get_sample(index)
         return self._plot(sample, fig)
 
     def get_sample(self, index: int) -> Any:
+        """
+        Get a sample from the data source at the specified index.
+
+        Args:
+            index (int): The index of the sample to retrieve.
+
+        Returns:
+            Any: The retrieved sample.
+
+        Raises:
+            ValueError: If the data_source is not callable or indexable.
+        """
         if callable(self.data_source):
             return self.data_source(index)
         elif isinstance(self.data_source, (list, np.ndarray)):
@@ -230,7 +311,18 @@ class InteractionPlot:
             raise ValueError("data_source must be callable or indexable")
 
     def _format_image_data(self, sample: np.ndarray) -> np.ndarray:
-        """Process the input array to fit the go.Image format (height x width x 3)."""
+        """
+        Format image data to fit the go.Image format (height x width x 3).
+
+        Args:
+            sample (np.ndarray): The image data to format.
+
+        Returns:
+            np.ndarray: The formatted image data.
+
+        Raises:
+            ValueError: If the image shape cannot be processed.
+        """
         sample = np.asarray(sample)  # Ensure input is a numpy array
 
         # Check if the data is float and in [0, 1] range
@@ -261,6 +353,19 @@ class InteractionPlot:
         return sample
 
     def _plot(self, sample: Any, fig: go.Figure) -> go.Figure:
+        """
+        Create a plot based on the sample data and plot type.
+
+        Args:
+            sample (Any): The data sample to plot.
+            fig (go.Figure): The figure object to update with the plot.
+
+        Returns:
+            go.Figure: The updated figure object.
+
+        Raises:
+            ValueError: If the specified plot type is not supported.
+        """
         if self.plot_type.lower() == "text":
             default_trace_kwargs = {
                 "x": [0],

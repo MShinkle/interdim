@@ -252,6 +252,7 @@ class InterDimAnalysis:
             scatter_kwargs=scatter_kwargs,
             interact_mode=interact_mode,
             port=port,
+            verbose=self.verbose,  # Pass the verbose flag to interactive_scatterplot
         )
 
         return app
