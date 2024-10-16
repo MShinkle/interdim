@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -6,18 +8,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InterDim &mdash; InterDim 0.1.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=fd825880"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=fd825880"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -77,10 +75,14 @@
              
   <section id="interdim">
 <h1>InterDim<a class="headerlink" href="#interdim" title="Link to this heading"></a></h1>
-<a class="reference external image-reference" href="https://github.com/MShinkle/interdim/actions"><img alt="Docs and Tests" src="https://github.com/MShinkle/interdim/actions/workflows/docs.yml/badge.svg?branch=main&amp;amp;label=tests" /></a>
-<a class="reference external image-reference" href="https://img.shields.io/pypi/pyversions/interdim.svg"><img alt="Python Versions" src="https://img.shields.io/pypi/pyversions/interdim.svg" /></a>
-<a class="reference external image-reference" href="https://opensource.org/licenses/BSD-3-Clause"><img alt="License" src="https://img.shields.io/badge/license-BSD--3--Clause-blue.svg" /></a>
-<a class="reference external image-reference" href="https://MShinkle.github.io/interdim"><img alt="Docs" src="https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg" /></a>
+<a class="reference external image-reference" href="https://github.com/MShinkle/interdim/actions"><img alt="Docs and Tests" src="https://github.com/MShinkle/interdim/actions/workflows/docs.yml/badge.svg?branch=main&amp;amp;label=tests" />
+</a>
+<a class="reference external image-reference" href="https://img.shields.io/pypi/pyversions/interdim.svg"><img alt="Python Versions" src="https://img.shields.io/pypi/pyversions/interdim.svg" />
+</a>
+<a class="reference external image-reference" href="https://opensource.org/licenses/BSD-3-Clause"><img alt="License" src="https://img.shields.io/badge/license-BSD--3--Clause-blue.svg" />
+</a>
+<a class="reference external image-reference" href="https://MShinkle.github.io/interdim"><img alt="Docs" src="https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg" />
+</a>
 <section id="interactive-dimensionality-reduction-clustering-and-visualization">
 <h2>Interactive Dimensionality Reduction, Clustering, and Visualization<a class="headerlink" href="#interactive-dimensionality-reduction-clustering-and-visualization" title="Link to this heading"></a></h2>
 <p>InterDim is a Python package for interactive exploration of latent data dimensions. It wraps existing tools for dimensionality reduction, clustering, and data visualization in a streamlined interface, allowing for quick and intuitive analysis of high-dimensional data.</p>
@@ -120,16 +122,27 @@ pip<span class="w"> </span>install<span class="w"> </span>.
 <span class="n">analysis</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">point_visualization</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<a class="reference external image-reference" href="https://raw.githubusercontent.com/MShinkle/interdim/refs/heads/main/docs/images/iris_plot.png"><img alt="3D Scatter Plot with Interactive Bar Charts" src="https://raw.githubusercontent.com/MShinkle/interdim/refs/heads/main/docs/images/iris_plot.png" /></a>
+<a class="reference external image-reference" href="https://raw.githubusercontent.com/MShinkle/interdim/refs/heads/main/docs/images/iris_plot.png"><img alt="3D Scatter Plot with Interactive Bar Charts" src="https://raw.githubusercontent.com/MShinkle/interdim/refs/heads/main/docs/images/iris_plot.png" />
+</a>
 <p>This will reduce the Iris dataset to 3 dimensions using t-SNE, clusters the data using K-means, and displays an interactive 3D scatter plot with bar charts for each data point as you hover over them.</p>
+<p>However, this is just a small example of what you can do with InterDim. You can use it to explore all sorts of data, including high-dimensional data like language model embeddings!</p>
 </section>
 <section id="demo-notebooks">
 <h3>Demo Notebooks<a class="headerlink" href="#demo-notebooks" title="Link to this heading"></a></h3>
 <p>For more in-depth examples and use cases, check out our demo notebooks:</p>
-<ol class="arabic simple">
-<li><p><a class="reference external" href="https://github.com/MShinkle/interdim/blob/main/notebooks/IRIS_visualization.ipynb">Iris Species Analysis</a>: Basic usage with the classic Iris dataset.</p></li>
-<li><p><a class="reference external" href="https://github.com/MShinkle/interdim/blob/main/notebooks/DNN_latents.ipynb">DNN Latent Space Exploration</a>: Visualizing deep neural network activations.</p></li>
-<li><p><a class="reference external" href="https://github.com/MShinkle/interdim/blob/main/notebooks/LLM_token_embeddings.ipynb">LLM Token Analysis</a>: Exploring language model token embeddings and layer activations.</p></li>
+<ol class="arabic">
+<li><p><a class="reference external" href="https://github.com/MShinkle/interdim/blob/main/notebooks/IRIS_visualization.ipynb">Iris Species Analysis</a>: Basic usage with the classic Iris dataset.</p>
+<a class="reference external image-reference" href="https://raw.githubusercontent.com/MShinkle/interdim/refs/heads/main/docs/images/iris_plot_pretty.png"><img alt="Iris Species Analysis" src="https://raw.githubusercontent.com/MShinkle/interdim/refs/heads/main/docs/images/iris_plot_pretty.png" />
+</a>
+</li>
+<li><p><a class="reference external" href="https://github.com/MShinkle/interdim/blob/main/notebooks/DNN_latents.ipynb">DNN Latent Space Exploration</a>: Visualizing deep neural network activations.</p>
+<a class="reference external image-reference" href="https://raw.githubusercontent.com/MShinkle/interdim/refs/heads/main/docs/images/fashion_plot.png"><img alt="DNN Latent Space Exploration" src="https://raw.githubusercontent.com/MShinkle/interdim/refs/heads/main/docs/images/fashion_plot.png" />
+</a>
+</li>
+<li><p><a class="reference external" href="https://github.com/MShinkle/interdim/blob/main/notebooks/LLM_token_embeddings.ipynb">LLM Token Analysis</a>: Exploring language model token embeddings and layer activations.</p>
+<a class="reference external image-reference" href="https://raw.githubusercontent.com/MShinkle/interdim/refs/heads/main/docs/images/llm_weevil.png"><img alt="LLM Token Analysis" src="https://raw.githubusercontent.com/MShinkle/interdim/refs/heads/main/docs/images/llm_weevil.png" />
+</a>
+</li>
 </ol>
 </section>
 <section id="documentation">
